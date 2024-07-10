@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telegram Mini App Example</title>
+    <script src="https://raw.githubusercontent.com/nectariferous/Initializing-Mini-Apps/main/telegram-web-app.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: var(--tg-theme-bg-color, #ffffff);
+            color: var(--tg-theme-text-color, #000000);
+        }
+        #app {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        pre {
+            background-color: var(--tg-theme-secondary-bg-color, #f0f0f0);
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <h1>Telegram Mini App Data Example</h1>
+        <div id="user-data"></div>
+        <div id="theme-data"></div>
+        <div id="platform-data"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const tg = window.Telegram.WebApp;
+
+            // Function to safely get nested properties
+            const safeGet = (obj, path) => path.split('.').reduce((acc, part) => acc && acc[part], obj);
+
+            // Function to display data
+            function displayData(elementId, title, data) {
+                const element = document.getElementById(elementId);
+                element.innerHTML = `<h2>${title}</h2><pre>${JSON.stringify(data, null, 2)}</pre>`;
+            }
+
+            // Display user data
+            const userData = {
+                id: safeGet(tg, 'initDataUnsafe.user.id'),
+                first_name: safeGet(tg, 'initDataUnsafe.user.first_name'),
+                last_name: safeGet(tg, 'initDataUnsafe.user.last_name'),
+                username: safeGet(tg, 'initDataUnsafe.user.username'),
+                language_code: safeGet(tg, 'initDataUnsafe.user.language_code'),
+                is_premium: safeGet(tg, 'initDataUnsafe.user.is_premium')
+            };
+            displayData('user-data', 'User Data', userData);
+
+            // Display theme data
+            const themeData = {
+                color_scheme: tg.colorScheme,
+                theme_params: tg.themeParams
+            };
+            displayData('theme-data', 'Theme Data', themeData);
+
+            // Display platform data
+            const platformData = {
+                platform: tg.platform,
+                version: tg.version,
+                is_expanded: tg.isExpanded,
+                viewport_height: tg.viewportHeight,
+                viewport_stable_height: tg.viewportStableHeight
+            };
+            displayData('platform-data', 'Platform Data', platformData);
+
+            // Expand the Mini App to full height
+            tg.expand();
+
+            // Set up main button
+            tg.MainButton.setText('Click me!');
+            tg.MainButton.onClick(function() {
+                tg.showAlert('Main button clicked!');
+            });
+            tg.MainButton.show();
+
+            // Notify Telegram that the Mini App is ready
+            tg.ready();
+        });
+    </script>
+</body>
+</html>
