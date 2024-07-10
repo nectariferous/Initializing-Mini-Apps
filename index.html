@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Telegram Mini App Example</title>
+    <title>Initializing-Mini-Apps Demo</title>
     <script src="https://raw.githubusercontent.com/nectariferous/Initializing-Mini-Apps/main/telegram-web-app.js"></script>
     <style>
         body {
@@ -23,69 +23,76 @@
             border-radius: 5px;
             overflow-x: auto;
         }
+        .github-info {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: var(--tg-theme-hint-color, #cccccc);
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
     <div id="app">
-        <h1>Telegram Mini App Data Example</h1>
-        <div id="user-data"></div>
-        <div id="theme-data"></div>
-        <div id="platform-data"></div>
+        <h1>Initializing-Mini-Apps Demo</h1>
+        <p>This page demonstrates the capabilities of the Initializing-Mini-Apps library.</p>
+        
+        <div id="telegram-data">
+            <h2>Telegram Web App Data</h2>
+            <pre id="tg-data-display">Loading Telegram data...</pre>
+        </div>
+
+        <div class="github-info">
+            <h2>GitHub Repository</h2>
+            <p>View the source code and documentation on <a href="https://github.com/nectariferous/Initializing-Mini-Apps" target="_blank">GitHub</a>.</p>
+            <p>Contact: <a href="https://t.me/nectariferous" target="_blank">@nectariferous on Telegram</a></p>
+        </div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const tg = window.Telegram.WebApp;
+            const tg = window.Telegram?.WebApp;
+            const dataDisplay = document.getElementById('tg-data-display');
 
-            // Function to safely get nested properties
-            const safeGet = (obj, path) => path.split('.').reduce((acc, part) => acc && acc[part], obj);
+            if (tg) {
+                // Function to safely get nested properties
+                const safeGet = (obj, path) => path.split('.').reduce((acc, part) => acc && acc[part], obj);
 
-            // Function to display data
-            function displayData(elementId, title, data) {
-                const element = document.getElementById(elementId);
-                element.innerHTML = `<h2>${title}</h2><pre>${JSON.stringify(data, null, 2)}</pre>`;
+                // Collect Telegram Web App data
+                const tgData = {
+                    initDataUnsafe: {
+                        user: {
+                            id: safeGet(tg, 'initDataUnsafe.user.id'),
+                            first_name: safeGet(tg, 'initDataUnsafe.user.first_name'),
+                            last_name: safeGet(tg, 'initDataUnsafe.user.last_name'),
+                            username: safeGet(tg, 'initDataUnsafe.user.username'),
+                            language_code: safeGet(tg, 'initDataUnsafe.user.language_code'),
+                            is_premium: safeGet(tg, 'initDataUnsafe.user.is_premium')
+                        }
+                    },
+                    version: tg.version,
+                    platform: tg.platform,
+                    colorScheme: tg.colorScheme,
+                    themeParams: tg.themeParams,
+                    isExpanded: tg.isExpanded,
+                    viewportHeight: tg.viewportHeight,
+                    viewportStableHeight: tg.viewportStableHeight
+                };
+
+                // Display the data
+                dataDisplay.textContent = JSON.stringify(tgData, null, 2);
+
+                // Set up main button
+                tg.MainButton.setText('Hello from Mini App!');
+                tg.MainButton.onClick(function() {
+                    tg.showAlert('Main button clicked in the Mini App!');
+                });
+                tg.MainButton.show();
+
+                // Notify Telegram that the Mini App is ready
+                tg.ready();
+            } else {
+                dataDisplay.textContent = 'Telegram Web App is not available. Make sure you\'re opening this page within the Telegram app.';
             }
-
-            // Display user data
-            const userData = {
-                id: safeGet(tg, 'initDataUnsafe.user.id'),
-                first_name: safeGet(tg, 'initDataUnsafe.user.first_name'),
-                last_name: safeGet(tg, 'initDataUnsafe.user.last_name'),
-                username: safeGet(tg, 'initDataUnsafe.user.username'),
-                language_code: safeGet(tg, 'initDataUnsafe.user.language_code'),
-                is_premium: safeGet(tg, 'initDataUnsafe.user.is_premium')
-            };
-            displayData('user-data', 'User Data', userData);
-
-            // Display theme data
-            const themeData = {
-                color_scheme: tg.colorScheme,
-                theme_params: tg.themeParams
-            };
-            displayData('theme-data', 'Theme Data', themeData);
-
-            // Display platform data
-            const platformData = {
-                platform: tg.platform,
-                version: tg.version,
-                is_expanded: tg.isExpanded,
-                viewport_height: tg.viewportHeight,
-                viewport_stable_height: tg.viewportStableHeight
-            };
-            displayData('platform-data', 'Platform Data', platformData);
-
-            // Expand the Mini App to full height
-            tg.expand();
-
-            // Set up main button
-            tg.MainButton.setText('Click me!');
-            tg.MainButton.onClick(function() {
-                tg.showAlert('Main button clicked!');
-            });
-            tg.MainButton.show();
-
-            // Notify Telegram that the Mini App is ready
-            tg.ready();
         });
     </script>
 </body>
